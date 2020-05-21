@@ -1,7 +1,19 @@
+# Exclude compiled files
+*
+!*.*
+!*/
+
+*.so
+*.so.*
+*.o
+*.bc
+*.rbc
+
+# Include makefiles
+!makefile
+
 # Ignore files downloaded by scripts
 candidates/
-src/dudect/inc
-src/dudect/src
 
 # Ignore tmp files
 tmp/
