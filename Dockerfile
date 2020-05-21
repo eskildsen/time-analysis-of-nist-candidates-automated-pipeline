@@ -35,13 +35,13 @@ RUN cd $HOME/llvm-3.7.1.src/build && \
 
 ENV PATH="$PATH:/root/llv-3.7.1.src/build/Release+Asserts/bin"
 
-#RUN cd $HOME/llvm-3.7.1.src/lib/Transforms/AliasSets && \
-#    make -j4
-#RUN cd $HOME/llvm-3.7.1.src/lib/Transforms/DepGraph && \
-#    make -j4
-#RUN cd $HOME/llvm-3.7.1.src/lib/Transforms/bSSA2 && \
-#    make -j4
-#RUN cd $HOME/llvm-3.7.1.src/lib/Transforms/bSSA2 && \
-#    g++ -shared -o parserXML.so -fPIC parserXML.cpp tinyxml2.cpp
+RUN cd $HOME/llvm-3.7.1.src/build/lib/Transforms/AliasSets && \
+    make -j${NUM_PROCESSORS}
+RUN cd $HOME/llvm-3.7.1.src/build/lib/Transforms/DepGraph && \
+    make -j4
+RUN cd $HOME/llvm-3.7.1.src/build/lib/Transforms/bSSA2 && \
+    make -j4
+RUN cd $HOME/llvm-3.7.1.src/build/lib/Transforms/bSSA2 && \
+    g++ -shared -o parserXML.so -fPIC parserXML.cpp tinyxml2.cpp
 
 CMD ["bash"]
