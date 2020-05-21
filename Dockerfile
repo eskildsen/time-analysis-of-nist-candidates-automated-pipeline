@@ -33,7 +33,7 @@ RUN cd $HOME/llvm-3.7.1.src/build && \
     ../configure --disable-bindings && \
     make -j${NUM_PROCESSORS}
 
-ENV PATH="$PATH:/root/llv-3.7.1.src/build/Release+Asserts/bin"
+ENV PATH="$PATH:/root/llvm-3.7.1.src/build/Release+Asserts/bin"
 
 RUN cd $HOME/llvm-3.7.1.src/build/lib/Transforms/AliasSets && \
     make -j${NUM_PROCESSORS}
