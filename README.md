@@ -23,7 +23,7 @@ sudo docker run --rm -it -v ~/source:/root/source flowtracker
 
 Running a sample can be done using the commands below. See more details at [https://github.com/dfaranha/FlowTracker](https://github.com/dfaranha/FlowTracker). The `in.xml` file specifies the input parameters.
 ```
-cd /root/flowtracker/donnabad
+cd /usr/share/flowtracker/donnabad
 clang -emit-llvm -c -g curve25519-donnabad.c -o curve25519-donnabad.bc
 opt -instnamer -mem2reg curve25519-donnabad.bc > curve25519-donnabad.rbc
 opt -basicaa -load AliasSets.so -load DepGraph.so -load bSSA2.so -bssa2 -xmlfile in.xml curve25519-donnabad.rbc
