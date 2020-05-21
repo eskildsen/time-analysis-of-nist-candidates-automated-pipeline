@@ -5,3 +5,6 @@ src/dudect/src
 
 # Ignore tmp files
 tmp/
+
+# Exclude generated reports
+out/
