@@ -2,6 +2,6 @@ FROM archlinux:20200505
 
 RUN pacman --noconfirm -Sy libedit
 RUN curl -o /tmp/flowtracker.tar.gz "https://www.ic.unicamp.br/~dfaranha/flowtracker.tar.gz"
-RUN tar -xzf /tmp/flowtracker.tar.gz -C /root
-ENV PATH="$PATH:/root/flowtracker/bin"
+RUN tar -xzf /tmp/flowtracker.tar.gz -C /usr/share
+ENV PATH="$PATH:/usr/share/flowtracker/bin"
 CMD ["bash"]
