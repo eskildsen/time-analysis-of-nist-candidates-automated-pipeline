@@ -11,29 +11,40 @@ sh get-docker.sh
 
 For other operating systems and manuel installation take a look at [https://docs.docker.com/install/](https://docs.docker.com/install/).
 
-### All tools on Ubuntu 16.04 (currently gcc 5.4, dudect and Flowtracker)
-Run the following commands to build the container
+### Use ready-built image
+You can use a container with all the tools already compiled by issuing the command below. This will give you a shell within the container with the tools ready to use. To run on your source code, you will need to take a look at the section **Running Analysis** below.
 ```
-sudo docker build -t tools -f Dockerfile .
-sudo docker run --rm -it tools
+sudo docker run eskildsen/time-analysis
 ```
 
 
-### Flowtracker on Arch Linux
-This downloads precompiled binaries to the docker image. It will only be slow when building it for the first time. Notice the trailing dot:
+### Manually building the image
+Run the following commands to build the container itself. Due to Flowtracker this might take 30+ minutes.
 ```
-sudo docker build -t flowtracker -f flowtracker.docker .
+sudo docker build -t time-analysis -f Dockerfile .
+sudo docker run --rm -it time-analysis
 ```
-You only have to build once. To mount a directory e.g. `~/source` with the binaries you want to test, you use the `-v` argument as below. Please note, that your local path must be absolute and might need to be located under your $HOME.
+
+
+## Running Analysis
+To mount a directory e.g. `~/source` with the binaries you want to test, you use the `-v` argument as below. Please note, that your local path must be absolute and might need to be located under your $HOME.
+
+If you manually built the container use:
 ```
-sudo docker run --rm -it -v ~/source:/root/source flowtracker
+sudo docker run --rm -it -v ~/source:/root/source time-analysis
+```
+If you use our pre-build container:
+
+```
+sudo docker run --rm -it -v ~/source:/root/source eskildsen/time-analysis
 ```
 
 Running a sample can be done using the commands below. See more details at [https://github.com/dfaranha/FlowTracker](https://github.com/dfaranha/FlowTracker). The `in.xml` file specifies the input parameters.
+
+In the container, assuming your code is in the path `/tmp/flowtracker/donnabad/curve25519-donnabad.c`:
 ```
-cd /usr/share/flowtracker/donnabad
+cd /tmp/flowtracker/donnabad
 clang -emit-llvm -c -g curve25519-donnabad.c -o curve25519-donnabad.bc
 opt -instnamer -mem2reg curve25519-donnabad.bc > curve25519-donnabad.rbc
 opt -basicaa -load AliasSets.so -load DepGraph.so -load bSSA2.so -bssa2 -xmlfile in.xml curve25519-donnabad.rbc
-
 ```
