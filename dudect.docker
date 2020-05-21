@@ -1,0 +1,18 @@
+FROM archlinux:20200505
+
+ARG NUM_PROCESSOR_COUNT=8
+ENV PATH_GCC=/usr/share/gcc
+
+RUN pacman -Syu --noconfirm && \
+    pacman -S wget gcc make --noconfirm
+RUN curl -Lo /tmp/gcc.tar.gz "https://github.com/gcc-mirror/gcc/archive/releases/gcc-5.4.0.tar.gz"
+RUN tar -xzf /tmp/gcc.tar.gz -C /usr/share
+RUN ln -s /usr/share/gcc-releases-gcc-5.4.0/ $PATH_GCC
+
+RUN cd $PATH_GCC && ./contrib/download_prerequisites
+#RUN mkdir /tmp/gcc-objdir && \
+#    cd /tmp/gcc-objdir && \
+#    CXXCPP=/usr/bin/cpp $PATH_GCC/configure --prefix=$HOME/GCC-5.4.0 --enable-languages=c,c++ && \
+#    make -j${NUM_PROCESSOR_COUNT} && \
+#    make install
+CMD ["bash"]
