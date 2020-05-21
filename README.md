@@ -11,7 +11,15 @@ sh get-docker.sh
 
 For other operating systems and manuel installation take a look at [https://docs.docker.com/install/](https://docs.docker.com/install/).
 
-### Flowtracker
+### All tools on Ubuntu 16.04 (currently gcc 5.4, dudect and Flowtracker)
+Run the following commands to build the container
+```
+sudo docker build -t tools -f Dockerfile .
+sudo docker run --rm -it tools
+```
+
+
+### Flowtracker on Arch Linux
 This downloads precompiled binaries to the docker image. It will only be slow when building it for the first time. Notice the trailing dot:
 ```
 sudo docker build -t flowtracker -f flowtracker.docker .
