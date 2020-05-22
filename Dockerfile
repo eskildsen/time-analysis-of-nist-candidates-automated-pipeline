@@ -51,32 +51,29 @@ RUN apt-get update && \
 RUN wget -O /tmp/valgrind.tar.bz2 "https://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2" && \
     tar -xf /tmp/valgrind.tar.bz2 -C /tmp/
 
-# Patch with ctgrind
+# Inject ctgrind
+COPY src/ctgrind/ctgrind.c /usr/share/sources/ctgrind/ctgrind.c
+COPY src/ctgrind/ctgrind.h /usr/share/sources/ctgrind/ctgrind.h
+
+RUN gcc -o /usr/lib/libctgrind.so -shared /usr/share/sources/ctgrind/ctgrind.c -I/usr/share/sources/ctgrind -Wall -std=c99 -fPIC -Wl,-soname,libctgrind.so.1 && \
+    ln -s /usr/lib/libctgrind.so /usr/lib/libctgrind.so.1
+
 COPY valgrind.patch /tmp/valgrind.patch
-RUN cd /tmp/valgrind-3.13.0 && \
-    git apply /tmp/valgrind.patch
+RUN cd /tmp/ && \
+    patch -p0 < /tmp/valgrind.patch
 
 RUN cd /tmp/valgrind-3.13.0 && \
     ./configure --prefix=/usr/share/valgrind && \
     make -j${NUM_PROCESSORS} && \
     make install
 
-ENV PATH="$PATH:/usr/share/valgrind/bin"
+ENV PATH="/usr/share/valgrind/bin:$PATH"
 
-# Libraries for ctgrind
-RUN mkdir /usr/share/ctgrind
-COPY src/ctgrind/ctgrind.h /usr/share/ctgrind/
-COPY src/ctgrind/ctgrind.c /usr/share/ctgrind/
-RUN cd /usr/share/ctgrind && \
-    gcc -o libctgrind.so -shared ctgrind.c -Wall -std=c99 -fPIC -Wl,-soname,/usr/share/ctgrind/libctgrind.so.1 && \
-    ln -s libctgrind.so libctgrind.so.1
+# Scripts
+COPY src /usr/share/sources
 
-COPY src/ctgrind/test.c /usr/share/ctgrind/test.c
-
-RUN cd /usr/share/ctgrind && \
-    gcc test.c -std=c99 -Wall -Wextra -Wshadow -O2 -ggdb -o test.o /usr/share/ctgrind/libctgrind.so -lm && \
-    valgrind ./test.o
-
+# Cleanup
 RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /tmp/*
 
 CMD ["bash"]
