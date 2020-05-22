@@ -71,15 +71,12 @@ RUN cd /usr/share/ctgrind && \
     gcc -o libctgrind.so -shared ctgrind.c -Wall -std=c99 -fPIC -Wl,-soname,/usr/share/ctgrind/libctgrind.so.1 && \
     ln -s libctgrind.so libctgrind.so.1
 
-ENV PATH="$PATH:/usr/share/valgrind/bin"
-ENV PATH="$PATH:/usr/share/ctgrind/"
-
 COPY src/ctgrind/test.c /usr/share/ctgrind/test.c
 
 RUN cd /usr/share/ctgrind && \
     gcc test.c -std=c99 -Wall -Wextra -Wshadow -O2 -ggdb -o test.o /usr/share/ctgrind/libctgrind.so -lm && \
     valgrind ./test.o
-    
+
 RUN rm -rf /var/lib/apt/lists/*
 
 CMD ["bash"]
