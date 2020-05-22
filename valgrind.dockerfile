@@ -12,8 +12,8 @@ RUN wget -O /tmp/valgrind.tar.bz2 "https://sourceware.org/pub/valgrind/valgrind-
 
 # Patch with ctgrind
 COPY valgrind.patch /tmp/valgrind.patch
-RUN cd /tmp/valgrind-3.13.0 && \
-    git apply /tmp/valgrind.patch
+RUN cd /tmp/ && \
+    patch -p0 < /tmp/valgrind.patch
 
 RUN cd /tmp/valgrind-3.13.0 && \
     ./configure --prefix=/usr/share/valgrind && \
