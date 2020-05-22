@@ -6,15 +6,12 @@
 #include "dut.h"
 #include "api.h"
 #include "crypto_aead.h"
+#include "settings.h"
 
-#define CRYPTO_MSGBYTES 32
-#define CRYPTO_ADBYTES 4
-#define DUDECT_MEASUREMENTS 1e6 // per test
 
 const size_t chunk_size = CRYPTO_KEYBYTES;
-const size_t number_measurements = DUDECT_MEASUREMENTS;
 const size_t clen = CRYPTO_MSGBYTES + CRYPTO_ABYTES;
-
+const size_t number_measurements = DUDECT_MEASUREMENTS;
 
 uint8_t *npub;
 uint8_t *nsec;
@@ -25,9 +22,11 @@ unsigned long long int *cipher_size;
 
 
 uint8_t do_one_computation(uint8_t *data) {
-  //uint8_t secret[16] = {0x2b,0x7e,0x15,0x16,0x28,0xae,0xd2,0xa6,0xab,0xf7,0x15,0x88,0x09,0xcf,0x4f,0x3c};
-  //uint8_t secret[16] = {0};
+  #if ANALYSE_ENCRYPT
   return (uint8_t)crypto_aead_encrypt(cipher, cipher_size, msg, CRYPTO_MSGBYTES, ad, CRYPTO_ADBYTES, nsec, npub, data);
+  #else
+  return (uint8_t)crypto_aead_decrypt(cipher, cipher_size, nsec, msg, CRYPTO_MSGBYTES, ad, CRYPTO_ADBYTES, npub, data);
+  #endif
 }
 
 
@@ -42,7 +41,7 @@ void generate_test_vectors() {
     nsec = calloc(CRYPTO_NSECBYTES, sizeof(uint8_t));
     randombytes(nsec, CRYPTO_NSECBYTES * sizeof(uint8_t));
   } else {
-    //TODO
+    //Dont do anything
   }
 
   //Fill randombytes
