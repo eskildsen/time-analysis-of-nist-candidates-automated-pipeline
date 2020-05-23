@@ -24,9 +24,9 @@ error () {
 
 dudect () {
     [ ! -f "${COMPILED_DIR}/dudect" ] && error "Could not find compiled dudect file"
-    printf "Executing dudect for ${DUDECT_TIMEOUT} minutes\n"
-    timeout $TIMEOUT stdbuf -oL "${COMPILED_DIR}/dudect" > "${OUT_DIR}/dudect.out"
-    [ $? -ne 0 ] && printf "${RED}Error: An error occurred while running dudect${NC}\n" && return
+    printf "Executing dudect for ${DUDECT_TIMEOUT} seconds\n"
+    timeout $DUDECT_TIMEOUT stdbuf -oL "${COMPILED_DIR}/dudect" > "${OUT_DIR}/dudect.out"
+    [ $? -ne 0 -a $? -ne 124 ] && printf "${RED}Error: An error occurred while running dudect${NC}\n" && return
     printf "Finished running dudect\n"
 }
 
@@ -41,7 +41,7 @@ ctgrind () {
 flowtracker () {
     [ ! -f "${COMPILED_DIR}/flowtracker.rbc" ] && error "Could not find compiled flowtracker file"
     printf "Executing flowtracker\n"
-    mkdir "${OUT_DIR}/flowtracker"
+    [ ! -d "${OUT_DIR}/flowtracker" ] && mkdir "${OUT_DIR}/flowtracker"
     cd "${OUT_DIR}/flowtracker"
     opt -basicaa -load AliasSets.so -load DepGraph.so -load bSSA2.so -bssa2 \
         -xmlfile $FLOWTRACKER_XML \
@@ -61,13 +61,13 @@ printf "Verifying mounted source and output folders\n"
 
 # Check if user provided settings.h and load settings
 printf "Reading user settings\n"
-[ ! -f "${CANDIDATE_DIR}/settings.h" ] && SETTINGS="${CANDIDATE_DIR}/settings.h" && SETTINGS_DIR="${CANDIDATE_DIR}/"
+[ -f "${CANDIDATE_DIR}/settings.h" ] && SETTINGS="${CANDIDATE_DIR}/settings.h" && SETTINGS_DIR="${CANDIDATE_DIR}/"
 while read -r def var val; do
-    printf -v $var "$val"
-    echo $var
-done < <(cat $SETTINGS | grep -E '^#define[ \t]+[a-zA-Z_][0-9a-zA-Z_]+')
+    newval=$(echo "$val" | cut -d ' ' -f1 | cut -f1 ) #remove comments and white space
+    printf -v $var "$newval"
+done < <(cat $SETTINGS | sed 's/\r$//' | grep -E '^#define[ \t]+[a-zA-Z_][0-9a-zA-Z_]+')
 
-[ ${ANALYSE_ENCRYPT} -ne 1 ] && FLOWTRACKER_XML="${FLOWTRACKER_DIR}/decrypt_key.xml"
+[ ! "${ANALYSE_ENCRYPT}" == "1" ] && FLOWTRACKER_XML="${FLOWTRACKER_DIR}/decrypt_key.xml"
 
 # Compile setup
 [ ! -d "${COMPILED_DIR}" ] && mkdir ${COMPILED_DIR}
@@ -79,7 +79,7 @@ DUDECT_OBJS="${DUDECT_ISNTALL_DIR}/src/cpucycles.o \
     ${DUDECT_ISNTALL_DIR}/src/ttest.o \
     ${DUDECT_ISNTALL_DIR}/src/percentile.o"
 DUDECT_INCS="-I${DUDECT_ISNTALL_DIR}/inc/"
-C_FILES=$(find -path "${CANDIDATE_DIR}/*.c")
+C_FILES=$(find -path ".${CANDIDATE_DIR}/*.c")
 
 # Compile encrypt.c with dudect
 printf "Compiling with dudect\n"
@@ -88,12 +88,12 @@ for file in $C_FILES; do
     file_basename=$(basename ${file} .c)
     [[ "$file_basename" == "genkat_aead" ]] && continue
     file_compiled="${COMPILED_DIR}/${file_basename}.o"
-    gcc $CFLAGS -I$COMMON_DIR -c $file -o $file_compiled
+    gcc $CFLAGS -I$COMMON_DIR -I$CANDIDATE_DIR -c $file -o $file_compiled
     [ $? -ne 0 ] && error "Error compiling provided src"
-    COMPILED_FILES="$COMPILED_FILES $file"
+    COMPILED_FILES="$COMPILED_FILES $file_compiled"
 done
 
-gcc $CFLAGS $DUDECT_INCS -I$COMMON_DIR -I$SRC_DIR -I$SETTINGS_DIR -o "${COMPILED_DIR}/dudect" \
+gcc $CFLAGS $DUDECT_INCS -I$COMMON_DIR -I$CANDIDATE_DIR -I$SETTINGS_DIR -o "${COMPILED_DIR}/dudect" \
      "${DUDECT_DIR}/dut.c" $DUDECT_OBJS $COMPILED_FILES $LIBS
 [ $? -ne 0 ] && error "Error compiling provided src with dudect"
 
@@ -105,21 +105,21 @@ for file in $C_FILES; do
     file_basename=$(basename ${file} .c)
     [[ "$file_basename" == "genkat_aead" ]] && continue
     file_compiled="${COMPILED_DIR}/${file_basename}.o"
-    gcc $CFLAGS -I$COMMON_DIR -c $file -o $file_compiled
+    gcc $CFLAGS -I$COMMON_DIR -I$CANDIDATE_DIR -c $file -o $file_compiled
     [ $? -ne 0 ] && error "Error compiling provided src"
-    COMPILED_FILES="$COMPILED_FILES $file"
+    COMPILED_FILES="$COMPILED_FILES $file_compiled"
 done
 
-gcc $CFLAGS $DUDECT_INCS -I$COMMON_DIR -I$SRC_DIR -I$SETTINGS_DIR -o "${COMPILED_DIR}/ctgrind" \
-    "${SRC_DIR}/ctgrind/taint.c" $COMPILED_FILES "${DUDECT_ISNTALL_DIR}/src/random.o" $LIBS
+gcc $CFLAGS $DUDECT_INCS -I$COMMON_DIR -I$CANDIDATE_DIR -I$SETTINGS_DIR "${SRC_DIR}/ctgrind/taint.c" /usr/lib/libctgrind.so \
+    -o "${COMPILED_DIR}/ctgrind" $COMPILED_FILES "${DUDECT_ISNTALL_DIR}/src/random.o" $LIBS
 [ $? -ne 0 ] && error "Error compiling provided src with ctgrind"
 
 # Compile encrypt.c with flowtracker
 printf "Compiling with flowtracker\n"
 
 FLOWTRACKER_BC="${COMPILED_DIR}/flowtracker.bc"
-FLOWTRACKER_COMPILED="${COMPILED_DIR}/flowtracker/flowtracker.rbc"
-clang -emit-llvm -I${COMPILED_DIR} -g -c $ENCRYPT -o $FLOWTRACKER_BC
+FLOWTRACKER_COMPILED="${COMPILED_DIR}/flowtracker.rbc"
+clang -emit-llvm -I${COMPILED_DIR} -I$COMMON_DIR -g -c $ENCRYPT -o $FLOWTRACKER_BC
 [ $? -ne 0 ] && error "Error compiling provided src to llvm"
 opt -instnamer -mem2reg $FLOWTRACKER_BC > $FLOWTRACKER_COMPILED
 [ $? -ne 0 ] && error "Error compiling provided src with flowtracker"
@@ -127,15 +127,15 @@ opt -instnamer -mem2reg $FLOWTRACKER_BC > $FLOWTRACKER_COMPILED
 # Execute
 printf "Starting tool execution\n"
 
-dudect() &
-ctgrind() &
-flowtracker() &
+dudect &
+ctgrind &
+flowtracker &
 wait
 
 # Write summary
 SUMMARY="Summary of running tools on the provied code\n\nResult of running dudect:\n"
 output=$(tail -n 3 ${OUT_DIR}/dudect.out)
-if [[ "$output" =~ "Definitely not" -o "$output" =~ "Probably not" -o "$output" =~ "maybe" ]] then
+if [[ $output =~ "Definitely not" -o $output =~ "Probably not" -o $output =~ "maybe" ]] then
     SUMMARY="${SUMMARY}Last 3 iterations gave\n${output}\nFull dudect report can be found in dudect.out in the output directory\n\n"
 else
     SUMMARY="${SUMMARY}DUDECT gave no output in the time allotted\n\n"
