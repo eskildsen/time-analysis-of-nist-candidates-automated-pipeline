@@ -18,5 +18,8 @@ candidates/
 # Ignore tmp files
 tmp/
 
+# Exclude test files
+test/
+
 # Exclude generated reports
 out/
