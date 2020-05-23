@@ -9,10 +9,8 @@
 #include "ctgrind.h"
 #include "crypto_aead.h"
 #include "api.h"
+#include "settings.h"
 
-#define CRYPTO_MSGBYTES 32
-#define CRYPTO_ADBYTES 4
-#define DUDECT_MEASUREMENTS 1e6 // per test
 
 //const size_t chunk_size = CRYPTO_KEYBYTES;
 const size_t clen = CRYPTO_MSGBYTES + CRYPTO_ABYTES;
@@ -26,15 +24,7 @@ uint8_t *key;
 unsigned long long int *cipher_size;
 
 void generate_test_vectors() {
-    npub = calloc(CRYPTO_NPUBBYTES, sizeof(uint8_t));
-    msg = calloc(CRYPTO_MSGBYTES, sizeof(uint8_t));
-    ad = calloc(CRYPTO_ADBYTES, sizeof(uint8_t));
-    key = calloc(CRYPTO_KEYBYTES, sizeof(uint8_t));
-    cipher = calloc(clen, sizeof(uint8_t));
-    cipher_size = calloc(1, sizeof(unsigned long long int));
-
     if (CRYPTO_NSECBYTES > 0) {
-        nsec = calloc(CRYPTO_NSECBYTES, sizeof(uint8_t));
         randombytes(nsec, CRYPTO_NSECBYTES * sizeof(uint8_t));
     } else {
         //TODO
@@ -48,9 +38,33 @@ void generate_test_vectors() {
 }
 
 int main() {
-    generate_test_vectors();
-    ct_poison(key, CRYPTO_KEYBYTES * sizeof(uint8_t));
+    npub = calloc(CRYPTO_NPUBBYTES, sizeof(uint8_t));
+    msg = calloc(CRYPTO_MSGBYTES, sizeof(uint8_t));
+    ad = calloc(CRYPTO_ADBYTES, sizeof(uint8_t));
+    key = calloc(CRYPTO_KEYBYTES, sizeof(uint8_t));
+    cipher = calloc(clen, sizeof(uint8_t));
+    cipher_size = calloc(1, sizeof(unsigned long long int));
 
-    crypto_aead_encrypt(cipher, cipher_size, msg, CRYPTO_MSGBYTES, ad, CRYPTO_ADBYTES, nsec, npub, key);
+    if (CRYPTO_NSECBYTES > 0) {
+        nsec = calloc(CRYPTO_NSECBYTES, sizeof(uint8_t));
+    } else {
+        //TODO
+    }
+
+    for (int i = 0; i < CTGRIND_SAMPLE_SIZE; i++) {
+        generate_test_vectors();
+        ct_poison(key, CRYPTO_KEYBYTES * sizeof(uint8_t));
+
+        crypto_aead_encrypt(cipher, cipher_size, msg, CRYPTO_MSGBYTES, ad, CRYPTO_ADBYTES, nsec, npub, key);
+
+        ct_unpoison(key, CRYPTO_KEYBYTES * sizeof(uint8_t));
+    }
+    
+    free(npub);
+    free(msg);
+    free(ad);
+    free(key);
+    free(cipher);
+    free(cipher_size);
     return 0;
 }
