@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-ARG NUM_PROCESSORS=8
+ARG NUM_PROCESSORS=4
 
 RUN apt-get update -y && \
     apt-get -y install gcc g++ git make wget xz-utils python
@@ -76,4 +76,4 @@ COPY src /usr/share/sources
 RUN rm -rf /var/lib/apt/lists/*
 RUN rm -rf /tmp/*
 
-CMD ["bash"]
+CMD /usr/share/sources/scripts/run.sh
