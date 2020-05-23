@@ -1,6 +1,10 @@
 #!/bin/bash
 
+RED='\033[0;31m'
+NC='\033[0m'
+
 help () {
+    printf "Usage:\n"
     printf "Run using prebuild docker image:\n"
     printf "\t./run.sh source_dir out_dir\n\n"
     printf "Manually build the docker image and run it:\n"
@@ -8,18 +12,25 @@ help () {
     exit 0
 }
 
-[ ! -x "$(command -v docker)" ] && printf "Could not find docker, make sure that you have docker installed" && exit 0
+check_path () {
+    local path=$1
+    local number=$2
+    [ ! -d $path ] && printf "${RED}The ${number} argument is not a directory${NC}\n\n" && help
+    [ "${path:0:1}" != "/" ] && printf "${RED}The ${number} argument is not an absolute path${NC}\n\n" && help
+}
+
+[ ! -x "$(command -v docker)" ] && printf "${RED}Could not find docker, make sure that you have docker installed${NC}" && exit 0
 
 if [ "$1" == "-b" ] && [ $# -eq 3 ]; then
-    [ ! -d $2 ] && printf "Second argument is not a directory\n\n" && help
-    [ ! -d $3 ] && printf "Third argument is not a directory\n\n" && help
+    check_path $2 "second"
+    check_path $3 "third"
 
     docker build -t time-analysis-tools -f Dockerfile .
     docker run --rm -it -v ${2}:/root/source -v ${3}:/root/out time-analysis-tools
 
 elif [ $# -eq 2 ]; then
-    [ ! -d "$1" ] && printf "First argument is not a directory\n\n" && help
-    [ ! -d "$2" ] && printf "Second argument is not a directory\n\n" && help
+    check_path $1 "first"
+    check_path $2 "second"
 
     docker run --rm -it -v ${1}:/root/source -v ${2}:/root/out eskildsen/time-analysis
 
