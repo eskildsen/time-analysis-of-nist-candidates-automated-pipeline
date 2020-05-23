@@ -135,7 +135,7 @@ wait
 # Write summary
 SUMMARY="Summary of running tools on the provied code\n\nResult of running dudect:\n"
 output=$(tail -n 3 ${OUT_DIR}/dudect.out)
-if [[ $output =~ "Definitely not" -o $output =~ "Probably not" -o $output =~ "maybe" ]] then
+if [[ "$output" =~ "Definitely not" || "$output" =~ "Probably not" || "$output" =~ "maybe" ]]; then
     SUMMARY="${SUMMARY}Last 3 iterations gave\n${output}\nFull dudect report can be found in dudect.out in the output directory\n\n"
 else
     SUMMARY="${SUMMARY}DUDECT gave no output in the time allotted\n\n"
@@ -156,4 +156,4 @@ printf "$SUMMARY" > ${OUT_DIR}/summary.txt
 printf "$SUMMARY"
 
 # Clean tmp files
-rmdir -rf $COMPILED_DIR
+rm -rf $COMPILED_DIR
