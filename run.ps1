@@ -2,19 +2,19 @@
 # NC='\033[0m'
 
 function help () {
-    Write-Output "Usage:\n"
-    Write-Output "Run using prebuild docker image:\n"
-    Write-Output "\t./run.sh source_dir out_dir\n\n"
-    Write-Output "Manually build the docker image and run it:\n"
-    Write-Output "\t./run.sh -b source_dir out_dir\n"
+    Write-Output "Usage:"
+    Write-Output "Run using prebuild docker image:"
+    Write-Output "   ./run.sh source_dir out_dir"
+    Write-Output "Manually build the docker image and run it:"
+    Write-Output "   ./run.sh -b source_dir out_dir"
     exit 0
 }
 
 function check_path () {
     local path=$1
     local number=$2
-    if (-not (Test-Path -Path $path -PathType Container )) { Write-Output "${RED}The ${number} argument is not a directory${NC}\n\n"; help }
-    if (-not ([System.IO.Path]::IsPathRooted($path))) {Write-Output "${RED}The ${number} argument is not an absolute path${NC}\n\n"; help }
+    if (-not (Test-Path -Path $path -PathType Container )) { Write-Output "${RED}The ${number} argument is not a directory${NC}"; help }
+    if (-not ([System.IO.Path]::IsPathRooted($path))) {Write-Output "${RED}The ${number} argument is not an absolute path${NC}"; help }
 }
 
 # if (-not [ ! -x "$(command -v docker)" ]; Write-Output "${RED}Could not find docker, make sure that you have docker installed${NC}" && exit 0
