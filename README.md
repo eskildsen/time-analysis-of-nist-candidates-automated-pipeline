@@ -97,3 +97,5 @@ Currently the Docker image and pipeline includes three constant time analysis to
 * Clean up in repository and restructure files
 * Examples
 * Generalize pipeline to work on other stuff than lightweight crypto submissions
+* User provided makefile for custom compile options (for .o files)
+* Settings for compiler version
