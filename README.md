@@ -58,12 +58,12 @@ The output directory is where the pipeline writes the results. It will write a s
 ### Customize
 The automated pipeline can be customized by providing a `settings.h` file in the mounted source directory. If it is not provided a default settings file will be used. The default settings file looks as follows
 ```c
-#define ANALYSE_ENCRYPT 1		    // If set to 1 analyse crypto_aead_encrypt funtion otherwise analyse crypto_aead_decrypt
-#define DUDECT_MEASUREMENTS 1e6     // Number of encrypt or decrypt exeutions each iteration of dudect
-#define DUDECT_TIMEOUT 600          // Upper limit on how long the dudect tool will run
+#define ANALYSE_ENCRYPT 1         // If set to 1 analyse crypto_aead_encrypt funtion otherwise analyse crypto_aead_decrypt
+#define DUDECT_MEASUREMENTS 1e6   // Number of encrypt or decrypt exeutions each iteration of dudect
+#define DUDECT_TIMEOUT 600        // Upper limit on how long the dudect tool will run
 #define CTGRIND_SAMPLE_SIZE 1e2		// Number of random executions of encrypt or decrypt in ctgrind tool
-#define CRYPTO_MSGBYTES 32			// Size of msg encrypted
-#define CRYPTO_ADBYTES 4			// Size of ad
+#define CRYPTO_MSGBYTES 32			  // Size of msg encrypted
+#define CRYPTO_ADBYTES 4			    // Size of ad
 ```
 
 ## Using image without automated pipeline
@@ -87,6 +87,7 @@ Currently the Docker image and pipeline includes three constant time analysis to
 ### Future improvements
 * Tools subsections in readme,
 * Contributing section in readme
+* Powershell run script
 * Separate build and execute scripts for each tools
 * Instructions on how to build with tools manually
 * More tools
