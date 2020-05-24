@@ -61,9 +61,9 @@ The automated pipeline can be customized by providing a `settings.h` file in the
 #define ANALYSE_ENCRYPT 1         // If set to 1 analyse crypto_aead_encrypt funtion otherwise analyse crypto_aead_decrypt
 #define DUDECT_MEASUREMENTS 1e6   // Number of encrypt or decrypt exeutions each iteration of dudect
 #define DUDECT_TIMEOUT 600        // Upper limit on how long the dudect tool will run
-#define CTGRIND_SAMPLE_SIZE 1e2		// Number of random executions of encrypt or decrypt in ctgrind tool
-#define CRYPTO_MSGBYTES 32			  // Size of msg encrypted
-#define CRYPTO_ADBYTES 4			    // Size of ad
+#define CTGRIND_SAMPLE_SIZE 1e2   // Number of random executions of encrypt or decrypt in ctgrind tool
+#define CRYPTO_MSGBYTES 32        // Size of msg encrypted
+#define CRYPTO_ADBYTES 4          // Size of ad
 ```
 
 ## Using image without automated pipeline
