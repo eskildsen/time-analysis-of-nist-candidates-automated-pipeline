@@ -25,14 +25,15 @@ if [ "$1" == "-b" ] && [ $# -eq 3 ]; then
     check_path $2 "second"
     check_path $3 "third"
 
-    docker build -t time-analysis-tools -f Dockerfile .
+    has_tools=$(docker images | grep time-analysis-tools | wc -l)
+    [ $has_tools < 1 ] && docker build -t time-analysis-tools -f Dockerfile .
     docker run --rm -it -v ${2}:/root/source -v ${3}:/root/out time-analysis-tools
 
 elif [ $# -eq 2 ]; then
     check_path $1 "first"
     check_path $2 "second"
 
-    docker run --rm -it -v ${1}:/root/source -v ${2}:/root/out eskildsen/time-analysis
+    docker run --rm -it -v ${1}:/root/source -v ${2}:/root/out eskehoy/ct-analysis-tools:latest
 
 else
     help
