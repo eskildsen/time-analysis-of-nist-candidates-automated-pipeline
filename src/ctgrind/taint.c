@@ -55,7 +55,11 @@ int main() {
         generate_test_vectors();
         ct_poison(key, CRYPTO_KEYBYTES * sizeof(uint8_t));
 
+        #if ANALYSE_ENCRYPT
         crypto_aead_encrypt(cipher, cipher_size, msg, CRYPTO_MSGBYTES, ad, CRYPTO_ADBYTES, nsec, npub, key);
+        #else
+        crypto_aead_decrypt(cipher, cipher_size, nsec, msg, CRYPTO_MSGBYTES, ad, CRYPTO_ADBYTES, npub, key);
+        #endif
 
         ct_unpoison(key, CRYPTO_KEYBYTES * sizeof(uint8_t));
     }
