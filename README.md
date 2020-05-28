@@ -1,4 +1,4 @@
-# Constant time analysis of nist candidates automated pipeline
+# Automated pipeline for Constant Time analysis of NIST candidates 
 This is a collection of tools to help evaluate NIST lightweight crypto implementations for constant-time behaviour.
 
 1. [Installation](#Installation)
