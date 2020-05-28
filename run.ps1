@@ -26,8 +26,9 @@ if (($args[0] -match "-b") -and ($args.Count -eq  3)) {
     check_path $args[1] "second"
     check_path $args[2] "third"
 
-    # has_tools=$(docker images | grep time-analysis-tools | wc -l)
-    if (has_tools -eq 0) { docker build -t time-analysis-tools -f Dockerfile .}
+    if (has_tools -eq 0) { 
+        Write-Output "No built image found for time-analysis-tools. Building..."
+        docker build -t time-analysis-tools -f Dockerfile .}
     docker run --rm -it -v ${2}:/root/source -v ${3}:/root/out time-analysis-tools
 }
 elseif ($args.Count -eq 2 ){
