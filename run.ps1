@@ -18,12 +18,16 @@ function check_path {
 
 # if (-not [ ! -x "$(command -v docker)" ]; Write-Output "${RED}Could not find docker, make sure that you have docker installed${NC}" && exit 0
 
+function has_tools {
+    docker images | Select-String "time-analysis-tools" | measure-object -line
+}
+
 if (($args[0] -match "-b") -and ($args.Count -eq  3)) {
     check_path $args[1] "second"
     check_path $args[2] "third"
 
-    has_tools=$(docker images | grep time-analysis-tools | wc -l)
-    if ($has_tools -eq 0) { docker build -t time-analysis-tools -f Dockerfile .}
+    # has_tools=$(docker images | grep time-analysis-tools | wc -l)
+    if (has_tools -eq 0) { docker build -t time-analysis-tools -f Dockerfile .}
     docker run --rm -it -v ${2}:/root/source -v ${3}:/root/out time-analysis-tools
 }
 elseif ($args.Count -eq 2 ){
