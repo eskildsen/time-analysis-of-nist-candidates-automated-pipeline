@@ -7,7 +7,7 @@ ARG NUM_PROCESSORS=8
 RUN apt-get update && \ 
     apt-get install -y bzip2 libc6-dbg gcc wget git make
 
-RUN wget -O /tmp/valgrind.tar.bz2 "https://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2" && \
+RUN wget -O /tmp/valgrind.tar.bz2 "https://sourceware.org/pub/valgrind/valgrind-3.16.1.tar.bz2" && \
     tar -xf /tmp/valgrind.tar.bz2 -C /tmp/
 
 # Libraries for ctgrind
@@ -25,7 +25,7 @@ COPY valgrind.patch /tmp/valgrind.patch
 RUN cd /tmp/ && \
     patch -p0 < /tmp/valgrind.patch
 
-RUN cd /tmp/valgrind-3.13.0 && \
+RUN cd /tmp/valgrind-3.16.1 && \
     ./configure --prefix=/usr/share/valgrind && \
     make -j${NUM_PROCESSORS} && \
     make install
