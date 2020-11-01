@@ -1,12 +1,15 @@
 # Automated pipeline for Constant Time analysis of NIST candidates 
 This is a collection of tools to help evaluate NIST lightweight crypto implementations for constant-time behaviour.
 
-1. [Installation](#Installation)
-2. [Running Analysis Pipeline](#Running-Analysis-Pipeline)
-3. [Using image without automated pipeline](#Using-image-without-automated-pipeline)
-4. [Tools included](#Tools)
-5. [Contributing](#Contributing)
+1. [Technical Paper](#Technical-Paper)
+2. [Installation](#Installation)
+3. [Running Analysis Pipeline](#Running-Analysis-Pipeline)
+4. [Using image without automated pipeline](#Using-image-without-automated-pipeline)
+5. [Tools included](#Tools)
+6. [Contributing](#Contributing)
 
+## Technical Paper
+We presented this work at the [NIST Lightweight Cryptography Workshop 2020](https://csrc.nist.gov/events/2020/lightweight-cryptography-workshop-2020). See also our [paper](https://csrc.nist.gov/CSRC/media/Events/lightweight-cryptography-workshop-2020/documents/papers/toolchain-timing-leakage-lwc2020.pdf) which describes this solution in details. Video recordings are available from the NIST website as well.
 
 ## Installation
 ### Docker
